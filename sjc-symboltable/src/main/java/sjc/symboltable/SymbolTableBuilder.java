@@ -116,31 +116,83 @@ public class SymbolTableBuilder {
 
     @Override
     public boolean visit(final FieldDeclaration node) {
-      // TODO
+      final VariableDeclarationFragment vdf = (VariableDeclarationFragment) node
+          .fragments().get(0);
+      final String name = vdf.getName().getIdentifier();
+      final TypeDeclaration td = (TypeDeclaration) node.getParent();
+      if (hasPublicModifier(td.modifiers())) {
+        if (this.nameMap.containsKey(name)) {
+          throw new Error(node, "Duplicate field: " + name);
+        }
+        this.nameMap.put(name, node);
+      } else {
+        final Pair<String, String> key = new Pair<>(td.getName()
+            .getIdentifier(), name);
+        if (this.fieldMap.containsKey(key)) {
+          throw new Error(node, "Duplicate field: " + name);
+        }
+        this.fieldMap.put(key, node);
+      }
       return false;
     }
 
     @Override
     public boolean visit(final MethodDeclaration node) {
-      // TODO
+      final Map<String, ASTNode> savedNameMap = new HashMap<>(this.nameMap);
+      this.localNames.clear();
+      for (final Object o : node.parameters()) {
+        final SingleVariableDeclaration svd = (SingleVariableDeclaration) o;
+        final String name = svd.getName().getIdentifier();
+        if (!this.localNames.add(name)) {
+          throw new Error(svd, "Duplicate parameter: " + name);
+        }
+        this.nameMap.put(name, svd);
+      }
+      node.getBody().accept(this);
+      this.nameMap = savedNameMap;
+      this.localNames.clear();
       return false;
     }
 
     @Override
     public boolean visit(final MethodInvocation node) {
-      // TODO
+      final Expression e = node.getExpression();
+      if ((e == null) || ((e instanceof SimpleName)
+          && ((SimpleName) e).getIdentifier().equals(this.className))) {
+        final String name = node.getName().getIdentifier();
+        final MethodDeclaration md = this.methodMap.get(name);
+        if (md == null) {
+          throw new Error(node, "Undefined method: " + name);
+        }
+        this.result.put(node, md);
+      }
+      for (final Object o : node.arguments()) {
+        ((ASTNode) o).accept(this);
+      }
       return false;
     }
 
     @Override
     public boolean visit(final SimpleName node) {
-      // TODO
+      final String name = node.getIdentifier();
+      final ASTNode decl = this.nameMap.get(name);
+      if (decl == null) {
+        throw new Error(node, "Undefined name: " + name);
+      }
+      this.result.put(node, decl);
       return false;
     }
 
     @Override
     public boolean visit(final VariableDeclarationStatement node) {
-      // TODO
+      for (final Object o : node.fragments()) {
+        final VariableDeclarationFragment vdf = (VariableDeclarationFragment) o;
+        final String name = vdf.getName().getIdentifier();
+        if (!this.localNames.add(name)) {
+          throw new Error(node, "Duplicate local variable: " + name);
+        }
+        this.nameMap.put(name, node);
+      }
       return false;
     }
 
@@ -177,7 +229,31 @@ public class SymbolTableBuilder {
 
     @Override
     public boolean visit(final TypeDeclaration node) {
-      // TODO
+      final String name = node.getName().getIdentifier();
+      if (!hasPublicModifier(node.modifiers())) {
+        if (this.classMap.containsKey(name)) {
+          throw new Error(node, "Duplicate class: " + name);
+        }
+        this.classMap.put(name, node);
+        for (final FieldDeclaration fd : node.getFields()) {
+          fd.accept(this);
+        }
+        return false;
+      }
+      this.className = name;
+      for (final FieldDeclaration fd : node.getFields()) {
+        fd.accept(this);
+      }
+      for (final MethodDeclaration md : node.getMethods()) {
+        final String methodName = md.getName().getIdentifier();
+        if (this.methodMap.containsKey(methodName)) {
+          throw new Error(md, "Duplicate method: " + methodName);
+        }
+        this.methodMap.put(methodName, md);
+      }
+      for (final MethodDeclaration md : node.getMethods()) {
+        md.accept(this);
+      }
       return false;
     }
   }
