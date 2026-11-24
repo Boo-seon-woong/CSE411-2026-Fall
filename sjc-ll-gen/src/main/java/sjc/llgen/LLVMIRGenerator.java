@@ -298,6 +298,7 @@ public final class LLVMIRGenerator {
 
       @Override
       public boolean visit(final Block node) {
+        // TODO
         this.handled = true;
         for (final Object object : node.statements()) {
           emitStatement((Statement) object);
@@ -307,6 +308,7 @@ public final class LLVMIRGenerator {
 
       @Override
       public boolean visit(final ExpressionStatement node) {
+        // TODO
         this.handled = true;
         emitSideEffect(node.getExpression());
         return false;
@@ -314,6 +316,7 @@ public final class LLVMIRGenerator {
 
       @Override
       public boolean visit(final IfStatement node) {
+        // TODO
         this.handled = true;
         final Value condition = emitExpression(node.getExpression());
         final String thenLabel = label("if.then");
@@ -342,6 +345,7 @@ public final class LLVMIRGenerator {
 
       @Override
       public boolean visit(final WhileStatement node) {
+        // TODO
         this.handled = true;
         final String conditionLabel = label("while.cond");
         final String bodyLabel = label("while.body");
@@ -360,6 +364,7 @@ public final class LLVMIRGenerator {
 
       @Override
       public boolean visit(final DoStatement node) {
+        // TODO
         this.handled = true;
         final String bodyLabel = label("do.body");
         final String conditionLabel = label("do.cond");
@@ -378,6 +383,7 @@ public final class LLVMIRGenerator {
 
       @Override
       public boolean visit(final ForStatement node) {
+        // TODO
         this.handled = true;
         for (final Object object : node.initializers()) {
           emitSideEffect((Expression) object);
@@ -409,6 +415,7 @@ public final class LLVMIRGenerator {
 
       @Override
       public boolean visit(final ReturnStatement node) {
+        // TODO
         this.handled = true;
         if (node.getExpression() == null) {
           line("ret void");
@@ -422,6 +429,7 @@ public final class LLVMIRGenerator {
 
       @Override
       public boolean visit(final VariableDeclarationStatement node) {
+        // TODO
         this.handled = true;
         return false;
       }
@@ -476,6 +484,7 @@ public final class LLVMIRGenerator {
 
       @Override
       public boolean visit(final Assignment node) {
+        // TODO
         this.handled = true;
         final Expression leftHandSide = node.getLeftHandSide();
         final Address address;
@@ -520,6 +529,7 @@ public final class LLVMIRGenerator {
 
       @Override
       public boolean visit(final PostfixExpression node) {
+        // TODO
         if (!this.sideEffect) {
           return false;
         }
@@ -572,6 +582,7 @@ public final class LLVMIRGenerator {
 
       @Override
       public boolean visit(final NumberLiteral node) {
+        // TODO
         this.handled = true;
         this.value = new Value(requireType(node), node.getToken());
         return false;
@@ -579,6 +590,7 @@ public final class LLVMIRGenerator {
 
       @Override
       public boolean visit(final BooleanLiteral node) {
+        // TODO
         this.handled = true;
         this.value = new Value(requireType(node),
             node.booleanValue() ? "true" : "false");
@@ -587,6 +599,7 @@ public final class LLVMIRGenerator {
 
       @Override
       public boolean visit(final NullLiteral node) {
+        // TODO
         this.handled = true;
         this.value = new Value(requireType(node), "null");
         return false;
@@ -594,6 +607,7 @@ public final class LLVMIRGenerator {
 
       @Override
       public boolean visit(final ParenthesizedExpression node) {
+        // TODO
         this.handled = true;
         this.value = emitExpression(node.getExpression());
         return false;
@@ -601,6 +615,7 @@ public final class LLVMIRGenerator {
 
       @Override
       public boolean visit(final SimpleName node) {
+        // TODO
         this.handled = true;
         final Object declaration = symbols.get(node);
         final Type type = requireType(node);
@@ -618,6 +633,7 @@ public final class LLVMIRGenerator {
 
       @Override
       public boolean visit(final ArrayAccess node) {
+        // TODO
         this.handled = true;
         final Value array = emitExpression(node.getArray());
         final Value index = emitExpression(node.getIndex());
@@ -633,6 +649,7 @@ public final class LLVMIRGenerator {
 
       @Override
       public boolean visit(final FieldAccess node) {
+        // TODO
         this.handled = true;
         final FieldDeclaration field = (FieldDeclaration) symbols.get(node);
         final Value object = emitExpression(node.getExpression());
@@ -651,6 +668,7 @@ public final class LLVMIRGenerator {
 
       @Override
       public boolean visit(final PrefixExpression node) {
+        // TODO
         this.handled = true;
         final Value operand = emitExpression(node.getOperand());
         final PrefixExpression.Operator operator = node.getOperator();
@@ -672,6 +690,7 @@ public final class LLVMIRGenerator {
 
       @Override
       public boolean visit(final InfixExpression node) {
+        // TODO
         this.handled = true;
         final InfixExpression.Operator operator = node.getOperator();
         final Value left = emitExpression(node.getLeftOperand());
@@ -752,6 +771,7 @@ public final class LLVMIRGenerator {
 
       @Override
       public boolean visit(final ConditionalExpression node) {
+        // TODO
         this.handled = true;
         final Value condition = emitExpression(node.getExpression());
         final String thenLabel = label("cond.then");
@@ -778,6 +798,7 @@ public final class LLVMIRGenerator {
 
       @Override
       public boolean visit(final MethodInvocation node) {
+        // TODO
         this.handled = true;
         final Object declaration = symbols.get(node);
         final Pair<Type, List<Type>> signature = requireMethodType(declaration);
@@ -811,6 +832,7 @@ public final class LLVMIRGenerator {
 
       @Override
       public boolean visit(final ArrayCreation node) {
+        // TODO
         this.handled = true;
         final Type type = requireType(node);
         final Type elementType = ((ArrayType) type).baseType;
@@ -841,6 +863,7 @@ public final class LLVMIRGenerator {
 
       @Override
       public boolean visit(final ClassInstanceCreation node) {
+        // TODO
         this.handled = true;
         final Type type = requireType(node);
         final String result = temp();
